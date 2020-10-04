@@ -1,0 +1,168 @@
+===================CREATE STATEMENTS===================
+
+CREATE TABLE IF NOT EXISTS `mydb`.`course` (
+  `idCourse` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `start` DATE NULL,
+  `duration` VARCHAR(45) NULL,
+  `language` VARCHAR(45) NULL,
+  `description` VARCHAR(100) NULL,
+  PRIMARY KEY (`idCourse`)
+)
+
+CREATE TABLE IF NOT EXISTS `mydb`.`instructor` (
+  `idInstructor` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idInstructor`)
+)
+
+CREATE TABLE IF NOT EXISTS `mydb`.`courses_taught_by_instructor` (
+  `idCourse` INT NOT NULL,
+  `idInstructor` INT NOT NULL,
+  INDEX `idInstructor_idx` (`idInstructor` ASC) VISIBLE,
+  PRIMARY KEY (`idInstructor`, `idCourse`),
+  CONSTRAINT `idCourse`
+    FOREIGN KEY (`idCourse`)
+    REFERENCES `mydb`.`course` (`idCourse`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `idInstructor`
+    FOREIGN KEY (`idInstructor`)
+    REFERENCES `mydb`.`instructor` (`idInstructor`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+)
+
+CREATE TABLE IF NOT EXISTS `mydb`.`university` (
+  `idUniversity` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idUniversity`)
+)
+
+CREATE TABLE IF NOT EXISTS `mydb`.`courses_by_university` (
+  `idUniversity` INT NOT NULL,
+  `idCourse` INT NOT NULL,
+  PRIMARY KEY (`idUniversity`, `idCourse`),
+  INDEX `idCourse_idx` (`idCourse` ASC) VISIBLE,
+  CONSTRAINT `idUniversity`
+    FOREIGN KEY (`idUniversity`)
+    REFERENCES `mydb`.`university` (`idUniversity`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `idCourse`
+    FOREIGN KEY (`idCourse`)
+    REFERENCES `mydb`.`course` (`idCourse`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+)
+CREATE TABLE IF NOT EXISTS `mydb`.`provider` (
+  `idProvider` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idProvider`)
+)
+
+CREATE TABLE IF NOT EXISTS `mydb`.`courses_by_provider` (
+  `idProvider` INT NOT NULL,
+  `idCourse` INT NOT NULL,
+  PRIMARY KEY (`idProvider`, `idCourse`),
+  INDEX `idCourse_idx` (`idCourse` ASC) VISIBLE,
+  CONSTRAINT `idProvider`
+    FOREIGN KEY (`idProvider`)
+    REFERENCES `mydb`.`provider` (`idProvider`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `idCourse`
+    FOREIGN KEY (`idCourse`)
+    REFERENCES `mydb`.`course` (`idCourse`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+)
+
+===================STORED PROCEDURES===================
+
+------------COURSE PROCEDURES------------
+
+DELIMITER // 
+Create PROCEDURE insert_course(IN c_id int, IN c_name varchar(100), IN c_start DATE, IN c_duration Varchar(45), IN c_language Varchar(45), IN c_description VARCHAR(100))
+BEGIN
+ insert into course(idCourse, name, start, duration, language, description) values (c_id, c_name,c_start, c_duration, c_language, c_description);
+END //
+DELIMITER ;
+
+DELIMITER // 
+Create PROCEDURE delete_course(IN c_id int)
+BEGIN
+ delete from course where idCourse = c_id;
+END //
+DELIMITER ;
+
+------------INSTRUCTOR PROCEDURES------------
+
+DELIMITER // 
+Create PROCEDURE insert_instructor(IN i_id int, IN i_name varchar(45))
+BEGIN
+ insert into instructor(idInstructor, name) values (i_id, i_name);
+END //
+DELIMITER ;
+
+DELIMITER // 
+Create PROCEDURE delete_instructor(IN i_id int)
+BEGIN
+ delete from instructor where idInstructor = i_id;
+END //
+DELIMITER ;
+
+DELIMITER // 
+Create PROCEDURE add_instructor_to_course(IN c_id int, IN i_id int)
+BEGIN
+ insert into courses_taught_by_instructor(idCourse, idInstructor) values (c_id, i_id);
+END //
+DELIMITER ;
+
+------------UNIVERSITY PROCEDURES------------
+
+
+DELIMITER // 
+Create PROCEDURE insert_university(IN u_id int, IN u_name varchar(45))
+BEGIN
+ insert into university(idUniversity, name) values (u_id, u_name);
+END //
+DELIMITER ;
+
+DELIMITER // 
+Create PROCEDURE delete_university(IN u_id int)
+BEGIN
+ delete from university where idUniversity = u_id;
+END //
+DELIMITER ;
+
+DELIMITER // 
+Create PROCEDURE add_university_to_course(IN c_id int, IN u_id int)
+BEGIN
+ insert into courses_by_university(idCourse, idUniversity) values (c_id, u_id);
+END //
+DELIMITER ;
+
+------------PROVIDER PROCEDURES------------
+
+
+DELIMITER // 
+Create PROCEDURE insert_provider(IN p_id int, IN p_name varchar(45))
+BEGIN
+ insert into provider(idProvider, name) values (p_id, p_name);
+END //
+DELIMITER ;
+
+DELIMITER // 
+Create PROCEDURE delete_provider(IN p_id int)
+BEGIN
+ delete from provider where idProvider = p_id;
+END //
+DELIMITER ;
+
+DELIMITER // 
+Create PROCEDURE add_provider_to_course(IN c_id int, IN p_id int)
+BEGIN
+ insert into courses_by_provider(idCourse, idProvider) values (c_id, p_id);
+END //
+DELIMITER ;
